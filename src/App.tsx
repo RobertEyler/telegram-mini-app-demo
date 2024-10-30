@@ -21,6 +21,7 @@ export default function App() {
     }
   }, []);
   const onclick = async ()=>{
+    console.log(okProvider);
     if (okProvider==null){
       console.log("None")
       setErrorText("正在连接")

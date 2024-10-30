@@ -23,8 +23,11 @@ const OkxProvider = (props: OkxProviderProps) => {
 
     const [oKXUniversalProvider, setOKXUniversalProvider] = useState<OKXUniversalProvider | null>(null);
     useEffect(() => {
-        OKXUniversalProvider.init(props.opts).then(res => setOKXUniversalProvider(res));
-    }, []);
+        OKXUniversalProvider.init(props.opts).then(res => setOKXUniversalProvider(res)).catch(err=>console.log(err));
+        return ()=>{
+            oKXUniversalProvider?.disconnect();
+        }
+    }, [props.opts]);
     return (
         <OkxContext.Provider value={oKXUniversalProvider}>
             {
