@@ -1,7 +1,7 @@
-
 import {useEffect, useState} from "react";
 import WebApp from "@twa-dev/sdk";
-import {OKXUniversalProvider} from "@okxconnect/universal-provider";
+import {useOkx} from "./okx/okxProvider.tsx";
+
 interface UserData {
   id: number;
   first_name: string;
@@ -13,18 +13,12 @@ interface UserData {
 
 export default function App() {
   const [userData, setUserData] = useState<UserData | null>(null)
-  const [okProvider, setOkProvider] = useState<OKXUniversalProvider|null>(null);
+  const okProvider = useOkx();
   const [errorText, setErrorText] = useState("")
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setUserData(WebApp.initDataUnsafe.user as UserData);
     }
-    OKXUniversalProvider.init({
-      dappMetaData: {
-        name: "application name",
-        icon: "application icon url"
-      },
-    }).then(res=>setOkProvider(res))
   }, []);
   const onclick = async ()=>{
     if (okProvider==null){
