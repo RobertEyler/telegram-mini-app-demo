@@ -11,55 +11,61 @@ interface UserData {
   is_premium?: boolean
 }
 
+
 export default function App() {
   const [userData, setUserData] = useState<UserData | null>(null)
-  const okProvider = useOkx();
-  const [errorText, setErrorText] = useState("")
+  const {
+      okxProvider,
+      isConnect,
+      session,
+      toConnect,
+      toDisConnect,
+      okxSolanaProvider
+  } = useOkx();
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setUserData(WebApp.initDataUnsafe.user as UserData);
     }
   }, []);
-  const onclick = async ()=>{
-    console.log(okProvider);
-    if (okProvider==null){
-      console.log("None")
-      setErrorText("正在连接")
-      return
-    }
-    const session = await okProvider.connect({
-      namespaces: {
-        solana: {
-          chains: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp", //solana mainnet
-            "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z",//solana testnet
-          ],
-        }
-      },
-      sessionConfig: {
-        redirect: "tg://resolve"
-      }
-    })
-    setErrorText(JSON.stringify(session));
-    console.log("session",session);
+
+  const signMessage = async ()=>{
+      console.log(okxProvider?.getUniversalProvider())
+        console.log(okxProvider?.rpcProviders)
+      const result:unknown = await okxSolanaProvider!.signMessage("hello word!", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")
+      console.log(result);
+      // setSignMsg(result)
   }
 
   return (
       <div className="p-4">
-        {
-          userData ? <>
-            <h1 className={"text-2xl font-bold mb-4"}>User Data</h1>
-            <ul>
-              <li>ID:{userData?.id}</li>
-              <li>First Name:{userData?.first_name}</li>
-            </ul>
-          </> : <div>
-            Loading...
-          </div>
-        }
-        <button onClick={onclick} className={"btn btn-primary"}>
-          连接
-        </button>
-        <p>{errorText}</p>
+          {
+              userData ? <>
+                  <h1 className={"text-2xl font-bold mb-4"}>User Data</h1>
+                  <ul>
+                      <li>ID:{userData?.id}</li>
+                      <li>First Name:{userData?.first_name}</li>
+                  </ul>
+              </> : <div>
+                  Loading...
+              </div>
+          }
+          {
+              isConnect?<button onClick={toDisConnect} className={"btn btn-primary"}>断开</button>:
+                  <button onClick={toConnect} className={"btn btn-primary"}>连接</button>
+          }
+          {
+              okxSolanaProvider!=null?(
+                  <div>
+                      <button onClick={signMessage} className={"btn-primary btn"}>签名</button>
+                  </div>
+              ):null
+          }
+          {
+              session!=null?(<>
+                  <div>{JSON.stringify(session)}</div>
+              </>):null
+          }
+
       </div>
   );
 }
