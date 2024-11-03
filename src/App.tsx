@@ -14,6 +14,7 @@ interface UserData {
 
 export default function App() {
   const [userData, setUserData] = useState<UserData | null>(null)
+    const [signData, setSignData] = useState<Uint8Array|undefined>()
   const {
       okxProvider,
       isConnect,
@@ -29,11 +30,11 @@ export default function App() {
   }, []);
 
   const signMessage = async ()=>{
-      console.log(okxProvider?.getUniversalProvider())
-        console.log(okxProvider?.rpcProviders)
-      const result:unknown = await okxSolanaProvider!.signMessage("hello word!", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")
+      const result = await okxSolanaProvider!.signMessage("hello word!")
       console.log(result);
-      // setSignMsg(result)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      setSignData(result["signature"] as Uint8Array)
   }
 
   return (
@@ -49,22 +50,46 @@ export default function App() {
                   Loading...
               </div>
           }
+          <div className={"text-primary"}>测试时请将okx升级到最新版</div>
           {
-              isConnect?<button onClick={toDisConnect} className={"btn btn-primary"}>断开</button>:
+              isConnect ? <button onClick={toDisConnect} className={"btn btn-primary"}>断开</button> :
                   <button onClick={toConnect} className={"btn btn-primary"}>连接</button>
           }
           {
-              okxSolanaProvider!=null?(
+              okxSolanaProvider != null ? (
                   <div>
                       <button onClick={signMessage} className={"btn-primary btn"}>签名</button>
                   </div>
-              ):null
+              ) : null
           }
           {
-              session!=null?(<>
-                  <div>{JSON.stringify(session)}</div>
-              </>):null
+              isConnect ? (<>
+                  <div>已连接</div>
+              </>) : null
           }
+          {
+              signData && <div>
+                  <div className={"text-bg-dark"}>
+                      签名成功：
+                  </div>
+                  <div>
+                      {signData}
+                  </div>
+              </div>
+          }
+          <div>
+              以下数据为测试授权使用
+          </div>
+          <div>
+              {
+                  JSON.stringify(WebApp.initDataUnsafe)
+              }
+          </div>
+          <div>
+              {
+                  WebApp.initData
+              }
+          </div>
 
       </div>
   );
